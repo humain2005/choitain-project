@@ -1,0 +1,95 @@
+1.
+void setup() {
+  pinMode(7, OUTPUT);  // 7번 핀을 출력 모드로 설정
+  digitalWrite(7, HIGH);  // 7번 핀을 HIGH 상태로 설정 (켜짐)
+}
+void loop() {
+  // 반복할 코드가 없으므로 빈 루프
+}
+
+2.
+// 핀 번호 설정
+int buzzer = 8;
+// 음의 주파수 설정
+int melody[] = {
+  262, 262, 392, 392, 440, 440, 392, 
+  349, 349, 330, 330, 294, 294, 262,
+  392, 392, 349, 349, 330, 330, 294,
+  392, 392, 349, 349, 330, 330, 294,
+  262, 262, 392, 392, 440, 440, 392,
+  349, 349, 330, 330, 294, 294, 262
+};
+// 각 음의 길이 (4분음표 기준)
+int noteDurations[] = {
+  4, 4, 4, 4, 4, 4, 2, 
+  4, 4, 4, 4, 4, 4, 2,
+  4, 4, 4, 4, 4, 4, 2,
+  4, 4, 4, 4, 4, 4, 2,
+  4, 4, 4, 4, 4, 4, 2,
+  4, 4, 4, 4, 4, 4, 2
+};
+void setup() {
+  // 아무것도 필요 없음
+}
+void loop() {
+  // 멜로디 재생
+  for (int thisNote = 0; thisNote < 42; thisNote++) {
+
+    // noteDuration은 기본적으로 1000 밀리초(1초)를 기준으로 합니다.
+    int noteDuration = 1000 / noteDurations[thisNote];
+    tone(buzzer, melody[thisNote], noteDuration);
+    // 음 사이에 여백 추가
+    int pauseBetweenNotes = noteDuration * 1.30;
+    delay(pauseBetweenNotes);
+    // 소리를 끔
+    noTone(buzzer);
+  }
+  // 반복을 멈추기 위해 무한 대기
+  while (true) {
+  }
+}
+3.
+아두이노 코드
+int count = 0; // 증가할 숫자
+void setup() {
+  // 시리얼 통신을 시작합니다 (9600 baud rate 설정)
+  Serial.begin(9600);
+}
+void loop() {
+  // 숫자를 시리얼로 전송합니다
+  Serial.println(count);
+  // 1초 대기
+  delay(1000);  
+  // 숫자를 증가시킵니다
+  count++;
+}
+
+프로세싱 코드
+import processing.serial.*; // 시리얼 라이브러리 가져오기
+Serial myPort;  // 시리얼 객체 선언
+String val;     // 읽어들일 데이터를 저장할 변수
+void setup() {
+  // 화면 크기 설정
+  size(200, 200);
+  // 아두이노가 연결된 시리얼 포트(COM3)에 연결 (Windows에서는 "COM3")
+  // Linux나 Mac에서는 "/dev/ttyUSB0" 또는 "/dev/tty.usbmodem1411" 등으로 변경 필요
+  myPort = new Serial(this, "COM3", 9600);
+  // 시리얼 통신 속도와 동일한 baud rate(9600)
+  myPort.bufferUntil('\n');  // 줄바꿈 문자가 들어올 때까지 버퍼링
+}
+void draw() {
+  // 배경색 설정
+  background(255);
+  // 시리얼 데이터가 들어왔을 때
+  if (myPort.available() > 0) {
+    // 시리얼 데이터를 읽고 저장
+    val = myPort.readStringUntil('\n');
+    // 숫자가 들어왔을 경우 출력
+    if (val != null) {
+      println("Received: " + val);  // 콘솔에 출력
+      textSize(32);
+      fill(0);
+      text("Count: " + val, 50, 100);  // 화면에 출력
+    }
+  }
+}
